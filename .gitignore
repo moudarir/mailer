@@ -1,0 +1,12 @@
+## Folders
+.cache/
+.config/
+.phpunit.cache/
+.vscode/
+.idea/
+examples/
+vendor/
+
+## Files
+.DS_Store
+composer.lock

@@ -1,0 +1,37 @@
+{
+  "name": "moudarir/mailer",
+  "description": "A lightweight and flexible PHP mail library supporting native mail(), sendmail, and custom SMTP transport.",
+  "type": "library",
+  "homepage": "https://github.com/moudarir/mailer",
+  "license": "MIT",
+  "keywords": [
+    "Mailer",
+    "Attachment",
+    "Email",
+    "HTML",
+    "smtp",
+    "Plain text",
+    "php"
+  ],
+  "authors": [
+    {
+      "name": "Abdessamad MOUDARIR",
+      "email": "amoudarir@gmail.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/moudarir/mailer/issues",
+    "source": "https://github.com/moudarir/mailer"
+  },
+  "require": {
+    "php": ">=8.4",
+    "ext-iconv": "*",
+    "moudarir/helpers": "^1.3",
+    "moudarir/file": "^1.0"
+  },
+  "autoload": {
+    "psr-4" : {
+      "Moudarir\\Mailer\\": "src/"
+    }
+  }
+}
