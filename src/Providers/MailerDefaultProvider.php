@@ -221,8 +221,6 @@ class MailerDefaultProvider implements MailerInterface
         $this->bcc_array = [];
         $this->headers = [];
 
-        $this->setHeaders('Date', DatetimeHelper::now()->toRfc822String());
-
         if ($clearAttachments === true) {
             $this->attachments = [];
         }
@@ -322,6 +320,7 @@ class MailerDefaultProvider implements MailerInterface
     {
         $returnPath = str_replace(['>', '<'], '', $this->headers['Return-Path']);
         $this->setHeaders([
+            'Date' => DatetimeHelper::now()->toRfc822String(),
             'User-Agent' => $this->config->useragent,
             'X-Sender' => Common::cleanEmail($this->headers['From']),
             'X-Mailer' => $this->config->useragent,
