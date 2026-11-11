@@ -6,6 +6,7 @@ namespace Moudarir\Mailer\Providers;
 
 use Moudarir\File\Enum\MimeType;
 use Moudarir\Helpers\Datetime\DatetimeHelper;
+use Moudarir\Helpers\EncryptionHelper;
 use Moudarir\Helpers\IsHelper;
 use Moudarir\Mailer\Enums\Protocol;
 use Moudarir\Mailer\Exceptions\MailerException;
@@ -15,9 +16,12 @@ use Moudarir\Mailer\MailerConfig;
 use Moudarir\Mailer\Messages\MailerDefaultAttachment;
 use Moudarir\Mailer\Messages\MailerDefaultMessageBuilder;
 use Moudarir\Mailer\Transports\MailerDefaultSMTPTransport;
+use Random\RandomException;
 
 class MailerDefaultProvider implements MailerInterface
 {
+
+    private string $message_id;
 
     private string $subject = '';
 
@@ -218,7 +222,7 @@ class MailerDefaultProvider implements MailerInterface
                 throw MailerException::sendFailure($this->config->protocol);
             }
 
-            return ['MessageId' => 'Success'];
+            return ['MessageId' => $this->message_id];
         } finally {
             $this->clear($clearAttachments);
         }
@@ -338,16 +342,26 @@ class MailerDefaultProvider implements MailerInterface
         return $this;
     }
 
+    /**
+     * @throws MailerException
+     */
     private function addHeaders(): void
     {
+        try {
+            $this->message_id ??= EncryptionHelper::generateToken(6, 'upper', 4);
+        } catch (RandomException $exception) {
+            throw MailerException::generic("Impossible de générer l'identifiant du message.", $exception);
+        }
+
         $returnPath = str_replace(['>', '<'], '', $this->headers['Return-Path']);
+
         $this->setHeaders([
             'Date' => DatetimeHelper::now()->toRfc822String(),
             'User-Agent' => $this->config->useragent,
             'X-Sender' => $this->headers['From'],
             'X-Mailer' => $this->config->useragent,
             'X-Priority' => '3 (Normal)',
-            'Message-ID' => '<'.uniqid().strstr($returnPath, '@').'>',
+            'Message-ID' => '<'.$this->message_id.strstr($returnPath, '@').'>',
             'Mime-Version' => '1.0',
         ]);
     }

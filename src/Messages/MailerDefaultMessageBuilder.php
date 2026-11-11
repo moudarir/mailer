@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Moudarir\Mailer\Messages;
 
 use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Exceptions\MailerException;
 use Moudarir\Mailer\Helpers\Common;
 use Moudarir\Mailer\MailerConfig;
 
@@ -37,6 +38,7 @@ final readonly class MailerDefaultMessageBuilder
      *     headerStr: string,
      *     headers: array
      * }
+     * @throws MailerException
      */
     public function build(): array
     {
@@ -56,7 +58,7 @@ final readonly class MailerDefaultMessageBuilder
         $newlineDouble = str_repeat($newline, 2);
         $hdr = $this->config->protocol === Protocol::MAIL ? $newline : '';
         $message = '';
-        $boundary = uniqid('B_ALT_');
+        $boundary = Common::generateBoundary('B_ALT_');
 
         if ($this->attachments === []) {
             $hdr .= 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
@@ -78,7 +80,7 @@ final readonly class MailerDefaultMessageBuilder
 
             $message .= '--'.$boundary.'--';
         } else {
-            $atc_boundary = uniqid('B_ATC_');
+            $atc_boundary = Common::generateBoundary('B_ATC_');
             $hdr .= 'Content-Type: multipart/mixed; boundary="' . $atc_boundary . '"';
 
             if ($this->config->protocol === Protocol::MAIL) {

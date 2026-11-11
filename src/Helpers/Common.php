@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Moudarir\Mailer\Helpers;
 
+use Moudarir\Helpers\EncryptionHelper;
 use Moudarir\Helpers\IsHelper;
 use Moudarir\Mailer\Exceptions\MailerException;
 
@@ -147,6 +148,18 @@ final class Common
     {
         return self::validateEmail($email) &&
             preg_match('#\A[a-z0-9._+-]+@[a-z0-9.-]{1,253}\z#i', $email);
+    }
+
+    /**
+     * @throws MailerException
+     */
+    public static function generateBoundary(string $name = ''): string
+    {
+        if (($binaryBytes = EncryptionHelper::binaryBytes(16)) === null) {
+            throw MailerException::generic("Impossible de générer le délimiteur.");
+        }
+
+        return $name . bin2hex($binaryBytes);
     }
 
     public static function cleanEmail(array|string $email): array|string
