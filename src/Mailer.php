@@ -21,33 +21,48 @@ final class Mailer
             : new MailerDefaultProvider($config ?? new MailerConfig());
     }
 
+    /**
+     * @throws MailerException
+     */
     public function from(string $email, string $name = '', ?string $returnPath = null): self
     {
         $this->provider->from($email, $name, $returnPath);
         return $this;
     }
 
+    /**
+     * @throws MailerException
+     */
+    public function replyTo(string $email, string $name = ''): self
+    {
+        $this->provider->replyTo($email, $name);
+        return $this;
+    }
+
+    /**
+     * @throws MailerException
+     */
     public function to(array|string $email): self
     {
         $this->provider->to($email);
         return $this;
     }
 
+    /**
+     * @throws MailerException
+     */
     public function cc(array|string $email): self
     {
         $this->provider->cc($email);
         return $this;
     }
 
+    /**
+     * @throws MailerException
+     */
     public function bcc(array|string $email): self
     {
         $this->provider->bcc($email);
-        return $this;
-    }
-
-    public function replyTo(string $email, string $name = ''): self
-    {
-        $this->provider->replyTo($email, $name);
         return $this;
     }
 

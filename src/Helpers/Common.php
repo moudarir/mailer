@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Moudarir\Mailer\Helpers;
 
+use Moudarir\Helpers\IsHelper;
+use Moudarir\Mailer\Exceptions\MailerException;
+
 final class Common
 {
 
@@ -110,6 +113,42 @@ final class Common
         return substr($output, 0, strlen($crlf) * -1);
     }
 
+    public static function validateEmail(string &$email): bool
+    {
+        $email = self::cleanEmail($email);
+
+        return IsHelper::validEmail($email);
+    }
+
+    /**
+     * @throws MailerException
+     */
+    public static function validateEmails(array|string $emails): array
+    {
+        $emails = self::stringToArray($emails);
+
+        if (empty($emails)) {
+            throw MailerException::invalidEmail();
+        }
+
+        return array_map(
+            static function ($email) {
+                if (self::validateEmail($email) === false) {
+                    throw MailerException::invalidEmail($email);
+                }
+
+                return $email;
+            },
+            $emails
+        );
+    }
+
+    public static function validateEmailForShell(string &$email): bool
+    {
+        return self::validateEmail($email) &&
+            preg_match('#\A[a-z0-9._+-]+@[a-z0-9.-]{1,253}\z#i', $email);
+    }
+
     public static function cleanEmail(array|string $email): array|string
     {
         if (!is_array($email)) {
@@ -131,21 +170,6 @@ final class Common
         }
 
         return $email;
-    }
-
-    public static function validateEmailForShell(string &$email): bool
-    {
-        if (function_exists('idn_to_ascii') && str_contains($email, '@')) {
-            [$account, $domain] = explode('@', $email, 2);
-            $domain = idn_to_ascii($domain);
-
-            if ($domain !== false) {
-                $email = $account . '@' . $domain;
-            }
-        }
-
-        return filter_var($email, FILTER_VALIDATE_EMAIL) === $email &&
-            preg_match('#\A[a-z0-9._+-]+@[a-z0-9.-]{1,253}\z#i', $email);
     }
 
     public static function hostname(): string

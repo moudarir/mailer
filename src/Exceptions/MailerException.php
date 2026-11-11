@@ -72,6 +72,15 @@ final class MailerException extends Exception
         return new self(sprintf("Impossible d'ouvrir un socket avec Sendmail. Veuillez vérifier la configuration de votre environnement. Code de retour : %d.", $status));
     }
 
+    public static function invalidEmail(?string $email = null): self
+    {
+        return new self(
+            $email === null || $email === ''
+                ? "Aucune adresse mail n'a été fournie."
+                : sprintf("L'adresse mail fournie `%s` n'est pas valide.", $email)
+        );
+    }
+
     public static function generic(string $message, ?Throwable $previous = null): self
     {
         return new self($message, previous: $previous);

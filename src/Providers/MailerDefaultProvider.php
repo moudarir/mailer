@@ -46,6 +46,9 @@ class MailerDefaultProvider implements MailerInterface
     {
     }
 
+    /**
+     * @throws MailerException
+     */
     public function from(string $email, string $name = '', ?string $returnPath = null): self
     {
         [$email, $name] = $this->buildAddress($email, $name);
@@ -56,49 +59,61 @@ class MailerDefaultProvider implements MailerInterface
         return $this->setHeaders('Return-Path', '<'.$returnPath.'>');
     }
 
-    public function to(array|string $email): self
-    {
-        $email = Common::cleanEmail(Common::stringToArray($email));
-
-        if ($this->config->protocol !== Protocol::MAIL) {
-            $this->setHeaders('To', implode(', ', $email));
-        }
-
-        $this->recipients = $email;
-        return $this;
-    }
-
-    public function cc(array|string $email): self
-    {
-        $email = Common::cleanEmail(Common::stringToArray($email));
-
-        $this->setHeaders('Cc', implode(', ', $email));
-
-        if ($this->config->protocol === Protocol::SMTP) {
-            $this->cc_array = $email;
-        }
-
-        return $this;
-    }
-
-    public function bcc(array|string $email): self
-    {
-        $email = Common::cleanEmail(Common::stringToArray($email));
-
-        if ($this->config->protocol === Protocol::SMTP) {
-            $this->bcc_array = $email;
-        } else {
-            $this->setHeaders('Bcc', implode(', ', $email));
-        }
-
-        return $this;
-    }
-
+    /**
+     * @throws MailerException
+     */
     public function replyTo(string $email, string $name = ''): self
     {
         [$email, $name] = $this->buildAddress($email, $name);
 
         return $this->setHeaders('Reply-To', $name.' <'.$email.'>');
+    }
+
+    /**
+     * @throws MailerException
+     */
+    public function to(array|string $email): self
+    {
+        $emails = Common::validateEmails($email);
+
+        if ($this->config->protocol !== Protocol::MAIL) {
+            $this->setHeaders('To', implode(', ', $emails));
+        }
+
+        $this->recipients = $emails;
+        return $this;
+    }
+
+    /**
+     * @throws MailerException
+     */
+    public function cc(array|string $email): self
+    {
+        $emails = Common::validateEmails($email);
+
+        $this->setHeaders('Cc', implode(', ', $emails));
+
+        if ($this->config->protocol === Protocol::SMTP) {
+            $this->cc_array = $emails;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws MailerException
+     */
+    public function bcc(array|string $email): self
+    {
+        $emails = Common::validateEmails($email);
+
+        if ($this->config->protocol === Protocol::SMTP) {
+            $this->bcc_array = $emails;
+        } else {
+            $this->setHeaders('Bcc', implode(', ', $emails));
+        }
+
+        return $this;
     }
 
     public function subject(string $subject): self
@@ -228,8 +243,15 @@ class MailerDefaultProvider implements MailerInterface
         return $this;
     }
 
+    /**
+     * @throws MailerException
+     */
     private function buildAddress(string $email, string $name = ''): array
     {
+        if (Common::validateEmail($email) === false) {
+            throw MailerException::invalidEmail($email);
+        }
+
         if (preg_match('/<([^>]+)>/', $email, $match)) {
             $email = $match[1];
         }
@@ -246,7 +268,7 @@ class MailerDefaultProvider implements MailerInterface
     private function sendWithMail(): bool
     {
         $recipients = implode(', ', $this->recipients);
-        $from = Common::cleanEmail($this->headers['Return-Path']);
+        $from = $this->headers['Return-Path'];
 
         if (Common::validateEmailForShell($from)) {
             return mail($recipients, $this->subject, $this->final_body, $this->header_str, '-f '.$from);
@@ -264,7 +286,7 @@ class MailerDefaultProvider implements MailerInterface
             return false;
         }
 
-        $from = Common::cleanEmail($this->headers['From']);
+        $from = $this->headers['From'];
         $from = Common::validateEmailForShell($from) ? '-f '.$from : '';
 
         if (($fp = popen($this->config->sendmailPath.' -oi '.$from.' -t', 'w')) === false) {
@@ -322,7 +344,7 @@ class MailerDefaultProvider implements MailerInterface
         $this->setHeaders([
             'Date' => DatetimeHelper::now()->toRfc822String(),
             'User-Agent' => $this->config->useragent,
-            'X-Sender' => Common::cleanEmail($this->headers['From']),
+            'X-Sender' => $this->headers['From'],
             'X-Mailer' => $this->config->useragent,
             'X-Priority' => '3 (Normal)',
             'Message-ID' => '<'.uniqid().strstr($returnPath, '@').'>',

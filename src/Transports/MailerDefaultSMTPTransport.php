@@ -51,7 +51,7 @@ final class MailerDefaultSMTPTransport
             $this->connect();
             $this->authenticate();
 
-            $this->command(SmtpCommand::FROM, Common::cleanEmail($this->headers['From']));
+            $this->command(SmtpCommand::FROM, $this->headers['From']);
 
             foreach ($this->recipients as $recipient) {
                 $this->command(SmtpCommand::TO, $recipient);

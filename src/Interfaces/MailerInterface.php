@@ -10,15 +10,30 @@ use Moudarir\Mailer\Exceptions\MailerException;
 interface MailerInterface
 {
 
+    /**
+     * @throws MailerException
+     */
     public function from(string $email, string $name = '', ?string $returnPath = null): self;
 
+    /**
+     * @throws MailerException
+     */
+    public function replyTo(string $email, string $name = ''): self;
+
+    /**
+     * @throws MailerException
+     */
     public function to(array|string $email): self;
 
+    /**
+     * @throws MailerException
+     */
     public function cc(array|string $email): self;
 
+    /**
+     * @throws MailerException
+     */
     public function bcc(array|string $email): self;
-
-    public function replyTo(string $email, string $name = ''): self;
 
     public function subject(string $subject): self;
 
