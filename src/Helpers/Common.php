@@ -165,11 +165,17 @@ final class Common
     public static function cleanEmail(array|string $email): array|string
     {
         if (!is_array($email)) {
-            return preg_match('/<([^>]+)>/', $email, $match) ? $match[1] : $email;
+            return preg_match('/<([^>]+)>/', $email, $match)
+                ? trim($match[1])
+                : trim($email);
         }
 
         return array_map(
-            static fn (string $e): string => preg_match('/<([^>]+)>/', $e, $match) ? $match[1] : $e,
+            static fn (string $e): string => (
+                preg_match('/<([^>]+)>/', $e, $match)
+                    ? trim($match[1])
+                    : trim($e)
+            ),
             $email
         );
     }
