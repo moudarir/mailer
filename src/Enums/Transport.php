@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Moudarir\Mailer\Enums;
 
-enum Protocol: string
+enum Transport: string
 {
 
     case MAIL = 'mail';

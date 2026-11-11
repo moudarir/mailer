@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Moudarir\Mailer\Exceptions;
 
 use Exception;
-use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Enums\Transport;
 use Throwable;
 
 final class MailerException extends Exception
 {
 
-    public static function sendFailure(Protocol $protocol): self
+    public static function sendFailure(Transport $transport): self
     {
-        return new self($protocol->error());
+        return new self($transport->error());
     }
 
     public static function missingHeader(string $header): self

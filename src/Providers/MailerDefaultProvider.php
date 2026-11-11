@@ -8,7 +8,7 @@ use Moudarir\File\Enum\MimeType;
 use Moudarir\Helpers\Datetime\DatetimeHelper;
 use Moudarir\Helpers\EncryptionHelper;
 use Moudarir\Helpers\IsHelper;
-use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Enums\Transport;
 use Moudarir\Mailer\Exceptions\MailerException;
 use Moudarir\Mailer\Helpers\Common;
 use Moudarir\Mailer\Interfaces\MailerInterface;
@@ -80,7 +80,7 @@ class MailerDefaultProvider implements MailerInterface
     {
         $emails = Common::validateEmails($email);
 
-        if ($this->config->protocol !== Protocol::MAIL) {
+        if ($this->config->transport !== Transport::MAIL) {
             $this->setHeaders('To', implode(', ', $emails));
         }
 
@@ -97,7 +97,7 @@ class MailerDefaultProvider implements MailerInterface
 
         $this->setHeaders('Cc', implode(', ', $emails));
 
-        if ($this->config->protocol === Protocol::SMTP) {
+        if ($this->config->transport === Transport::SMTP) {
             $this->cc_array = $emails;
         }
 
@@ -111,7 +111,7 @@ class MailerDefaultProvider implements MailerInterface
     {
         $emails = Common::validateEmails($email);
 
-        if ($this->config->protocol === Protocol::SMTP) {
+        if ($this->config->transport === Transport::SMTP) {
             $this->bcc_array = $emails;
         } else {
             $this->setHeaders('Bcc', implode(', ', $emails));
@@ -212,14 +212,14 @@ class MailerDefaultProvider implements MailerInterface
             $this->headers = $result['headers'];
             $this->header_str = $result['headerStr'];
 
-            $success = match ($this->config->protocol) {
-                Protocol::MAIL => $this->sendWithMail(),
-                Protocol::SENDMAIL => $this->sendWithSendmail(),
-                Protocol::SMTP => $this->sendWithSmtp(),
+            $success = match ($this->config->transport) {
+                Transport::MAIL => $this->sendWithMail(),
+                Transport::SENDMAIL => $this->sendWithSendmail(),
+                Transport::SMTP => $this->sendWithSmtp(),
             };
 
             if ($success === false) {
-                throw MailerException::sendFailure($this->config->protocol);
+                throw MailerException::sendFailure($this->config->transport);
             }
 
             return ['MessageId' => $this->message_id];

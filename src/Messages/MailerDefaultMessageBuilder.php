@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Moudarir\Mailer\Messages;
 
-use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Enums\Transport;
 use Moudarir\Mailer\Exceptions\MailerException;
 use Moudarir\Mailer\Helpers\Common;
 use Moudarir\Mailer\MailerConfig;
@@ -45,7 +45,7 @@ final readonly class MailerDefaultMessageBuilder
         $headers = $this->headers;
         $subject = $this->subject;
 
-        if ($this->config->protocol === Protocol::MAIL && isset($headers['Subject'])) {
+        if ($this->config->transport === Transport::MAIL && isset($headers['Subject'])) {
             $subject = $headers['Subject'];
             unset($headers['Subject']);
         }
@@ -56,7 +56,7 @@ final readonly class MailerDefaultMessageBuilder
         $charset = $this->config->charset;
         $newline = $this->config->newline;
         $newlineDouble = str_repeat($newline, 2);
-        $hdr = $this->config->protocol === Protocol::MAIL ? $newline : '';
+        $hdr = $this->config->transport === Transport::MAIL ? $newline : '';
         $message = '';
         $boundary = Common::generateBoundary('B_ALT_');
 
@@ -72,7 +72,7 @@ final readonly class MailerDefaultMessageBuilder
                 . 'Content-Transfer-Encoding: quoted-printable' . $newlineDouble
                 . Common::prepQuotedPrintable($this->body, $this->config->crlf) . $newlineDouble;
 
-            if ($this->config->protocol === Protocol::MAIL) {
+            if ($this->config->transport === Transport::MAIL) {
                 $headerContent .= $hdr;
             } else {
                 $message = $hdr . $newlineDouble . $message;
@@ -83,7 +83,7 @@ final readonly class MailerDefaultMessageBuilder
             $atc_boundary = Common::generateBoundary('B_ATC_');
             $hdr .= 'Content-Type: multipart/mixed; boundary="' . $atc_boundary . '"';
 
-            if ($this->config->protocol === Protocol::MAIL) {
+            if ($this->config->transport === Transport::MAIL) {
                 $headerContent .= $hdr;
             }
 
@@ -103,7 +103,7 @@ final readonly class MailerDefaultMessageBuilder
             $message .= $newlineDouble;
             $this->appendAttachments($message, $atc_boundary);
 
-            if ($this->config->protocol !== Protocol::MAIL) {
+            if ($this->config->transport !== Transport::MAIL) {
                 $message = $hdr . $newlineDouble . $message;
             }
         }
@@ -134,7 +134,7 @@ final readonly class MailerDefaultMessageBuilder
             }
         }
 
-        return $this->config->protocol === Protocol::MAIL ? rtrim($header) : $header;
+        return $this->config->transport === Transport::MAIL ? rtrim($header) : $header;
     }
 
     private function appendAttachments(string &$body, string $boundary): void

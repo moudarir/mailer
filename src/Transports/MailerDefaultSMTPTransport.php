@@ -99,22 +99,18 @@ final class MailerDefaultSMTPTransport
     {
         $message = $this->headerStr . $this->body;
 
-        // Normalise les fins de ligne conformément au protocole SMTP.
         $message = str_replace(["\r\n", "\r"], "\n", $message);
 
         $message = str_replace("\n", "\r\n", $message);
 
-        // Échappe les lignes commençant par un point.
         $message = preg_replace('/(^|\r\n)\./', '$1..', $message) ?? $message;
 
-        // Le message doit se terminer par CRLF avant le terminateur SMTP.
         if (!str_ends_with($message, "\r\n")) {
             $message .= "\r\n";
         }
 
         $this->writeData($message, false);
 
-        // Termine le contenu DATA.
         $this->writeData('.');
     }
 

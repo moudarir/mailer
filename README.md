@@ -105,11 +105,11 @@ try {
 
 use Moudarir\Mailer\Mailer;
 use Moudarir\Mailer\MailerConfig;
-use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Enums\Transport;
 use Moudarir\Mailer\Exceptions\MailerException;
 
 try {
-    new Mailer(config: new MailerConfig(protocol: Protocol::SENDMAIL, sendmailPath: '/usr/sbin/sendmail'))
+    new Mailer(config: new MailerConfig(transport: Transport::SENDMAIL, sendmailPath: '/usr/sbin/sendmail'))
         ->from('no-reply@domain.com', 'No Reply')
         ->to('destinator@domain.com')
         ->subject($subject)
@@ -127,12 +127,12 @@ try {
 
 use Moudarir\Mailer\Mailer;
 use Moudarir\Mailer\MailerConfig;
-use Moudarir\Mailer\Enums\Protocol;
+use Moudarir\Mailer\Enums\Transport;
 use Moudarir\Mailer\Exceptions\MailerException;
 
 try {
     $config = new MailerConfig(
-        protocol: Protocol::SMTP,
+        transport: Transport::SMTP,
         smtpHost: 'smtp.mailserver.com',
         smtpUser: 'username@domain.com',
         smtpPass: 'your-password',
