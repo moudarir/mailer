@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Moudarir\Mailer;
 
+use Moudarir\Mailer\Enums\Priority;
 use Moudarir\Mailer\Enums\Transport;
 
 final readonly class MailerConfig
@@ -21,8 +22,9 @@ final readonly class MailerConfig
         public bool      $smtpKeepAlive = false,
         public string    $smtpCrypto = "", // 'tls', 'ssl' or ''
         public string    $charset = "UTF-8",
-        public string $crlf = "\r\n",
-        public string $newline = "\r\n",
+        public string    $crlf = "\r\n",
+        public string    $newline = "\r\n",
+        public Priority $priority = Priority::NORMAL,
     )
     {
     }

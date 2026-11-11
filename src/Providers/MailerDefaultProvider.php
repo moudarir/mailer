@@ -360,7 +360,7 @@ class MailerDefaultProvider implements MailerInterface
             'User-Agent' => $this->config->useragent,
             'X-Sender' => $this->headers['From'],
             'X-Mailer' => $this->config->useragent,
-            'X-Priority' => '3 (Normal)',
+            'X-Priority' => $this->config->priority->value,
             'Message-ID' => '<'.$this->message_id.strstr($returnPath, '@').'>',
             'Mime-Version' => '1.0',
         ]);
